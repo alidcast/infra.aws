@@ -60,9 +60,11 @@ List of available reader literals:
 
 ### Creating resources
 
-Right now you can only create resources via the repl - but that still beats having to creating them via aws console.
+Right now you can only create resources via the repl - but that still beats having to create them via aws console.
 
 Note: If you're creating resources that depend on one another make sure you wait for the given dependencies to finish creating.
+
+Example: 
 
 ```clj
 (def env :dev)
@@ -79,3 +81,7 @@ Note: If you're creating resources that depend on one another make sure you wait
  )
 ```
 
+List of available operations: 
+
+* `create-stack` 
+* `delete-stack` 
