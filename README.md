@@ -2,11 +2,12 @@
 
 Manage AWS infrastructure with Clojure and EDN.
 
-Infra builds upon Cognitecht's [aws-api](https://github.com/cognitect-labs/aws-api) to create AWS stacks and Juxt's [aero](https://github.com/juxt/aero) to serialize EDN configuration files into cloudformation templates.
-
 This documentation assumes that you're familiar with [AWS cloudformation](https://docs.aws.amazon.com/cloudformation/index.html), though you mostly just need to reference the [resource property options](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-template-resource-type-ref.html) for the resources you'll be creating.
 
 ## Docs
+
+
+### Declaring Resources
 
 Your edn file must be a mapping of resource names to their template bodies.
 
@@ -29,3 +30,38 @@ To declare a template url, create a vector where the first arg is the template u
 ### Custom Templates
 
 To declare custom templates just pass the [AWS cloudformation options](https://docs.aws.amazon.com/AWSCloudFormation/latest/APIReference/API_CreateStack.html) directly.
+
+### Writing Templates
+
+Infra provides a few template literals to make it easier to markup your templates.
+
+AWS has [intrinsic function utilities](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/intrinsic-function-reference.html) it uses for marking up JSON. If a reader literal serves a similar purpose as an existing utility we name it after its JSON counterpart.
+
+* `eid`: append environment info to an identifier string. Useful for naming resources per environment.
+
+* `ref`: reference a resource by its [logical id](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/resources-section-structure.html).
+
+* `sub`: substitute a keyword with a parameter passed to configuration reader.
+
+
+## Creating resources
+
+Right now you can only create resources via the repl - but that still beats having to creating them via aws console.
+
+Note: If you're creating resources that depend on one another make sure you wait for the given dependencies to finish creating.
+
+```clj
+(def env :dev)
+(def params {})
+
+(def cfg (infra.core/read-config "demo/aws-config.edn" env params))
+
+(defn get-resource [k]
+  (get cfg (infra/eid k env)))
+
+(comment 
+ (infra.aws/create-stack (get-resource "resource1"))
+ (infra.aws/create-stack (get-resource "resource2"))
+ )
+```
+
