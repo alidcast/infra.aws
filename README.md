@@ -2,7 +2,7 @@
 
 Manage AWS infrastructure with Clojure and EDN.
 
-This documentation assumes that you're familiar with [AWS cloudformation](https://docs.aws.amazon.com/cloudformation/index.html), though you mostly just need to reference the [resource property options](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-template-resource-type-ref.html) for the resources you'll be creating.
+This documentation assumes that you're familiar with [AWS Cloudformation](https://docs.aws.amazon.com/cloudformation/index.html), though you'll mostly just need to reference the [resource property options](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-template-resource-type-ref.html) for the resources you'll be creating.
 
 ## Docs
 
@@ -85,3 +85,7 @@ List of available operations:
 
 * `create-stack` 
 * `delete-stack` 
+
+## License
+
+MIT © [Alid Lorenzo](https://github.com/alidlo)
