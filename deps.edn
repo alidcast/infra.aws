@@ -1,7 +1,6 @@
 {:paths ["src" "resources"]
 
- :deps {aero                               {:mvn/version "1.1.6"}
-        com.cognitect/anomalies            {:mvn/version "0.1.12"}
+ :deps {com.cognitect/anomalies            {:mvn/version "0.1.12"}
         com.cognitect.aws/api              {:mvn/version "0.8.445"}
         com.cognitect.aws/endpoints        {:mvn/version "1.1.11.749"}
         com.cognitect.aws/cloudformation   {:mvn/version "773.2.575.0"}
