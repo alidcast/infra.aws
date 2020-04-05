@@ -86,6 +86,16 @@ List of available operations:
 * `create-stack` 
 * `delete-stack` 
 
+## References
+
+Infra is built on Clojure's [edn](https://github.com/edn-format/edn) and Cognitecht's [aws-api](https://github.com/cognitect-labs/aws-api).
+
+Infra is inspired by [aero](https://github.com/juxt/aero), which we originally used but since AWS already provides templating functions we decided to use EDN directly and just have most template literals match the AWS templating spec.
+
+## Acknowledgments
+
+Thanks to Joe Lane for discussing Code-As-Infrastructure with me and convincing me not to use Pulumi+Typescript.
+
 ## License
 
 MIT © [Alid Lorenzo](https://github.com/alidlo)
