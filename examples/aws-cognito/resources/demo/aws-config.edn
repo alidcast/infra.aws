@@ -1,0 +1,12 @@
+{#eid :DemoAuth
+ {:Resources
+  {:AuthPool         {:Type          "AWS::Cognito::UserPool"
+                      :Properties   {:UserPoolName      #eid :DemoAuthPool
+                                     :Schema            [{:Name               "email"
+                                                          :AttributeDataType  "String"
+                                                          :Required           true
+                                                          :Mutable            true}]}}
+   :AuthPoolClient   {:Type           "AWS::Cognito::UserPoolClient"
+                      :Properties   {:ClientName       #eid :DemoAuthPoolClient
+                                     :GenerateSecret   false
+                                     :UserPoolId       #ref :AuthPool}}}}}
