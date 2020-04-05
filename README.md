@@ -2,12 +2,18 @@
 
 Manage AWS infrastructure with Clojure and EDN.
 
-This documentation assumes that you're familiar with [AWS Cloudformation](https://docs.aws.amazon.com/cloudformation/index.html), though you'll mostly just need to reference the [resource property options](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-template-resource-type-ref.html) for the resources you'll be creating.
+Note: Currently you can only create resources via the repl but that still beats having to create resources manually via the aws console or having to define configurations via YAML/JSON files. In the future Infra might provide a cli and terminal interface for creating cloudformation stacks.
 
 ## Docs
 
+- [Configuring Resources](#configuring-resources)
+  - [Resource Types](#resource-types)
+  - [Writing Templates](#writing-templates)
+- [Creating resources](#creating-resources)
 
-### Configure Resources
+This documentation assumes that you're familiar with [AWS Cloudformation](https://docs.aws.amazon.com/cloudformation/index.html), though you'll mostly just need to reference the [resource property options](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-template-resource-type-ref.html) for the resources you'll be creating.
+
+### Configuring Resources
 
 Your edn file must be a mapping of resource names to their template bodies.
 
