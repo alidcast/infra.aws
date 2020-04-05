@@ -1,0 +1,13 @@
+{#eid :demo-storage
+ ["https://s3.amazonaws.com/datomic-cloud-1/cft/616-8879/datomic-storage-616-8879.json"
+  {}
+  {:Capabilities ["CAPABILITY_NAMED_IAM"]}]
+
+ #eid :demo-compute
+ ["https://s3.amazonaws.com/datomic-cloud-1/cft/616-8879/datomic-solo-compute-616-8879.json"
+  {:KeyName         "demo-datomic"
+   :ApplicationName "demo"
+   :EnvironmentMap   "{:env :dev}"
+   :SystemName       #eid :demo-storage
+   :PreloadDb        ""}
+  {:Capabilities ["CAPABILITY_NAMED_IAM"]}]}
