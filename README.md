@@ -4,6 +4,8 @@ Manage AWS infrastructure with Clojure and EDN.
 
 Infra builds upon Cognitecht's [aws-api](https://github.com/cognitect-labs/aws-api) to create AWS stacks and Juxt's [aero](https://github.com/juxt/aero) to serialize EDN configuration files into cloudformation templates.
 
+This documentation assumes that you're familiar with [AWS cloudformation](https://docs.aws.amazon.com/cloudformation/index.html), though you mostly just need to reference the [resource property options](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-template-resource-type-ref.html) for the resources you'll be creating.
+
 ## Docs
 
 Your edn file must be a mapping of resource names to their template bodies.
@@ -12,7 +14,7 @@ A template body can either be a vector, if a template is derived form a url, or 
 
 ### Template Urls
 
-Since [AWS cloudformation options](https://docs.aws.amazon.com/AWSJavaScriptSDK/latest/AWS/CloudFormation.html#createStack-property) are quite verbose, we have a shorthand for defining a template url and its parameters.
+Since [AWS cloudformation options](https://docs.aws.amazon.com/AWSCloudFormation/latest/APIReference/API_CreateStack.html) are quite verbose, we have a shorthand for defining a template url and its parameters.
 
 To declare a template url, create a vector where the first arg is the template url and the second is a parameter map, and the third is optional aws cloudformation options. The key-value parameters will be serialized to match AWS spec and merged with the extra aws options.
 
@@ -26,4 +28,4 @@ To declare a template url, create a vector where the first arg is the template u
 
 ### Custom Templates
 
-To declare custom templates just pass the [AWS cloudformation options](https://docs.aws.amazon.com/AWSJavaScriptSDK/latest/AWS/CloudFormation.html#createStack-property) directly.
+To declare custom templates just pass the [AWS cloudformation options](https://docs.aws.amazon.com/AWSCloudFormation/latest/APIReference/API_CreateStack.html) directly.
