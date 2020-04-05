@@ -1,0 +1,15 @@
+env
+
+# clojure
+classes
+target
+.cpcache
+.rebl
+REBL-*.jar
+.nrepl-port
+
+# vscode
+.clj-kondo
+
+# intelliJ IDE
+.idea
