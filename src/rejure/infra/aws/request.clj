@@ -1,15 +1,15 @@
-(ns rejure.infra.aws
-  "Utilities to manage AWS Cloudformation resources."
+(ns rejure.infra.aws.request
+  "Send AWS Cloudformation requests."
   (:require [cognitect.aws.client.api :as aws]))
 
-;; # Cloudformation operations
+;; # Cloudformation Operations 
 
 (def ^:private clf-client 
-  "Aws cloudformation client."
+  "Cloudformation client."
   (aws/client {:api :cloudformation}))
 
 (defn- req-clf
-  "Make an aws cloudformation request."
+  "Make an Cloudformation request."
   [op request]
   (aws/invoke clf-client {:op op
                           :request request}))
