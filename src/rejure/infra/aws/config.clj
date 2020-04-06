@@ -1,7 +1,9 @@
 (ns rejure.infra.aws.config
   "Configure cloudformation templates via EDN."
-  (:require [clojure.data.json :as json]
-            [clojure.edn :as edn]))
+  (:require 
+  ;;  [clojure.data.json :as json]
+   [clojure.edn :as edn]
+   [clojure.string :as string]))
 
 ;; # Config Helpers
 
@@ -11,39 +13,64 @@
   [ident env]
   (str (name ident) "-" (name env)))
 
+
 ;; # Config Reader 
 
-(defn- url-template? [v]
+(defn- template-url? [v]
   (vector? v))
 
-(defn- serialize-params
-  "Convert paramter map to AWS paramater array."
-  [params]
-  (into [] (for [[k v] params]
-             {:ParameterKey   (name k)
-              :ParameterValue v})))
+(defn- ->template-url-map
+  "Accepts stack name keyword `k` and template `url` string."
+  [k url]
+  {:StackName   k
+   :TemplateURL url})
 
+(defn- ->resource-type
+  "Converts resource key `k` to AWS identifier type.
+   The key should be in ':<Service>.<Module>' format.
+   i.e. :Service.Module -> AWS::Service::Module"
+  [k]
+  (string/join "::" (cons "AWS" (string/split (name k) #"\.")))
+  )
+
+(defn- ->template-body-map
+  "Accepts stack name keyword `k` and template `body`."
+  [k body]
+  {:StackName    k
+   :TemplateBody (assoc body 
+                        :Resources 
+                        (reduce-kv (fn [rm rk rv]
+                                     (assoc rm  rk (if (vector? rv)
+                                                     {:Type (->resource-type (first rv))
+                                                      :Properties (last rv)}
+                                                     rv)))
+                                   {}
+                                   (:Resources body)))})
+
+
+;; TODO: guard against invalid vector shorthand count 
+;; TODO: guard against invalid resource map
 (defn serialize-config
   "Expects mapping of resource names to template options.
    A template options can either be a vector, if template is dervied from a url, or a map.
-   For vector first arg is url string, second is parameter map, and third is extra aws options
-   The key-value parameters are serialized to match aws spec and merged with the extra aws options.
-   Note: We only need to serialize nested properties to JSON, the rest are handled by aws-api client."
-  [template]
+   For vector, first arg is url string and second is aws options.
+   For map, can declare aws options directly, but we provide shorthand for `:Resource` property."
+  [config]
   (reduce-kv
    (fn [m k v]
-     (let [template   (if (url-template? v)
-                        (let [[url params extra-opts] v]
-                          (merge {:StackName   k
-                                  :TemplateURL url
-                                  :Parameters  (serialize-params params)}
-                                 extra-opts))
-                        {:StackName    k
-                         :TemplateBody (json/write-str v)})]
+     (let [template   (if (template-url? v)
+                        (let [[url clf-opts] v]
+                          (merge (->template-url-map k url)
+                                 clf-opts))
+                        (->template-body-map k v))]
        (assoc m k template)))
    {}
-   template))
+   config))
 
+(defn- kv-params->aws-params
+  "Convert paramter map to AWS paramater array."
+  [params]
+  (into [] (for [[k v] params] {:ParameterKey (name k) :ParameterValue v})))
 
 (defn create-readers 
   "Create edn reader literals.
@@ -51,6 +78,7 @@
    (ref: https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/intrinsic-function-reference.html)"
   [env params]
   {'eid (fn [k] (eid k env))
+   'kvp (fn [m] (kv-params->aws-params m))
    'ref (fn [k] {:Ref (name k)})
    'sub (fn [k] (get params k))})
 
