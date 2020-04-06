@@ -2,6 +2,8 @@
 
 Manage AWS infrastructure with Clojure and EDN.
 
+Infra's configuration API preserves AWS's cloudformation options while providing shorthands and utilities that make it easier to configure complex templates.
+
 Note: Currently you can only create resources via the repl but that still beats having to create resources manually via the aws console or having to define configurations via YAML/JSON files. In the future Infra might provide a cli and terminal interface for creating cloudformation stacks.
 
 ## Docs
@@ -18,25 +20,35 @@ This documentation assumes that you're familiar with [AWS Cloudformation](https:
 Your edn file must be a mapping of resource names to their template bodies.
 
 #### Resource Types
+
 A template body can either be a vector, if a template is derived form a url, or a map.
 
 **Template Urls**
 
-Since [AWS cloudformation options](https://docs.aws.amazon.com/AWSCloudFormation/latest/APIReference/API_CreateStack.html) are quite verbose, we have a shorthand for defining a template url and its parameters.
-
-To declare a template url, create a vector where the first arg is the template url and the second is a parameter map, and the third is optional aws cloudformation options. The key-value parameters will be serialized to match AWS spec and merged with the extra aws options.
+Since [AWS Cloudformation Stack options](https://docs.aws.amazon.com/AWSCloudFormation/latest/APIReference/API_CreateStack.html) are quite verbose, we have a shorthand for defining a template urls. You can declare a tuple where the first arg is the template url and the second is AWS Stack options:
 
 ```clj
-{:template-url-ex ["http:/s3.amazonaws.com/path-to-template"
-                   {:Param1 "Value"}]}
-;; {:StackName   "template-url-ex"
+{:MyStack ["http:/s3.amazonaws.com/path-to-template"
+           {:Parameters []}]}
+;; {:StackName   "MyStack"
 ;;  :TemplateURL "http:/s3.amazonaws.com/path-to-template"
-;;  :Parameters  [{ParameterKey: "Param1", ParameterValue: "Value"]}
+;;  :Parameters  []}
 ```
 
 **Custom Templates**
 
-To declare custom templates just pass the [AWS cloudformation options](https://docs.aws.amazon.com/AWSCloudFormation/latest/APIReference/API_CreateStack.html) directly.
+To declare custom template maps you can pass the [AWS template options](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/template-anatomy.html) directly. 
+
+For declaring [Resources](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/resources-section-structure.html), we provide a shorthand you can use. Instead of a map with `type` and `properties` key-values, can pass a tuple where the first arg is the resource identifier type keyword (separating the service and its respective module with a period) and the second is its properties.
+
+```clj
+{:MyStack 
+ {:Resources {:ExResource [:Service.Module
+                           {:Name "Foo"}]}}}
+;; {:MyStack 
+;; {:Resources {:ExResource [{:Type "AWS::Service::Module"
+;;                            :Properties {:Name "Foo"}}]}}}
+```
 
 #### Writing Templates
 
@@ -44,25 +56,19 @@ Infra provides a few template literals to make it easier to markup your template
 
 AWS has [intrinsic function utilities](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/intrinsic-function-reference.html) it uses for marking up JSON. If a reader literal serves a similar purpose as an existing utility we name it after its JSON counterpart.
 
-You can look at the [example configs](https://github.com/rejure/infra.aws/tree/master/example/resources/demo)s to see template literals in action. But here's a contrived example for your convenience:
-
-```clj
-{#eid Stack1
- {:Resources {:Resource1 {:Type          "AWS::Service::Module"
-                          :Properties   {:ServiceName #eid :OrgResource1}}
-              :Resource2 {:Type          "AWS::Service::ModuleClient"
-                          :Properties   {:ServiceName #eid :OrgResource2
-                                         :ReferenceId #ref :Resource1}}}}
-```
+You can look at the [example configs](https://github.com/rejure/infra.aws/tree/master/example/resources/demo)s to see the template literals listed below in action. 
 
 List of available reader literals: 
 
 * `eid`: append environment info to an identifier string. Useful for naming resources per environment.
 
+* `kvp`: convert key-value parameter map to aws parameter array.
+
 * `ref`: reference a resource by its [logical id](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/resources-section-structure.html).
 
 * `sub`: substitute a keyword with a parameter passed to configuration reader.
 
+https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/resources-section-structure.html
 
 ### Creating resources
 
@@ -96,7 +102,7 @@ List of available operations:
 
 Infra is built on Clojure's [edn](https://github.com/edn-format/edn) and Cognitecht's [aws-api](https://github.com/cognitect-labs/aws-api).
 
-Infra is inspired by [aero](https://github.com/juxt/aero), which we originally used but since AWS already provides templating functions we decided to use EDN directly and just have most template literals match the AWS templating spec.
+Infra is inspired by [aero](https://github.com/juxt/aero), which we originally used but since AWS already provides templating functions we decided to use EDN directly and have most custom reader literals match the AWS templating spec.
 
 ## Acknowledgments
 
