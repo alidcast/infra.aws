@@ -1,4 +1,4 @@
-# Infra
+# Infra (alpha)
 
 Manage AWS infrastructure with Clojure and EDN.
 
@@ -44,7 +44,7 @@ Infra provides a few template literals to make it easier to markup your template
 
 AWS has [intrinsic function utilities](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/intrinsic-function-reference.html) it uses for marking up JSON. If a reader literal serves a similar purpose as an existing utility we name it after its JSON counterpart.
 
-You can look at the [examples](https://github.com/rejure/infra/tree/master/examples/datomic-api) directory to see template literals in action. But here's a contrived example for your convenience:
+You can look at the [example configs](https://github.com/rejure/infra.aws/tree/master/example/resources/demo)s to see template literals in action. But here's a contrived example for your convenience:
 
 ```clj
 {#eid Stack1
