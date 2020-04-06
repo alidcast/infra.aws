@@ -1,4 +1,4 @@
-(ns rejure.infra.core
+(ns rejure.infra.aws.config
   "Configure cloudformation templates via EDN."
   (:require [clojure.data.json :as json]
             [clojure.edn :as edn]))
@@ -56,10 +56,10 @@
 
 (defn read-edn
   "Read an AWS edn configuration.
-   Takes an io `stream`, env keyword `env` and parameter map `params` as arguments.
+   Takes an edn string `s`, env keyword `env` and parameter map `params` as arguments.
    Returns mapping of resources with their template options serialized to match aws spec.
    See `serialize-config` for templating details."
-  ([stream env] (read-edn stream env {}))
-  ([stream env params]
-   (serialize-config (edn/read {:readers (create-readers env params)}
-                               (java.io.PushbackReader. stream)))))
+  ([s env] (read-edn s env {}))
+  ([s env params]
+   (serialize-config (edn/read-string {:readers (create-readers env params)}
+                                      s))))
