@@ -14,7 +14,7 @@
   (str (name ident) "-" (name env)))
 
 
-;; # Config Reader 
+;; # Config Serializer
 
 (defn- template-url? [v]
   (vector? v))
@@ -30,11 +30,10 @@
    The key should be in ':<Service>.<Module>' format.
    i.e. :Service.Module -> AWS::Service::Module"
   [k]
-  (string/join "::" (cons "AWS" (string/split (name k) #"\.")))
-  )
+  (string/join "::" (cons "AWS" (string/split (name k) #"\."))))
 
 (defn- ->template-body-map
-  "Accepts stack name keyword `k` and template `body`."
+  "Accepts stack name keyword `k` and template map `body`."
   [k body]
   {:StackName    k
    :TemplateBody (assoc body 
@@ -67,10 +66,17 @@
    {}
    config))
 
+;; # Config Reader Literals
+
 (defn- kv-params->aws-params
-  "Convert paramter map to AWS paramater array."
-  [params]
-  (into [] (for [[k v] params] {:ParameterKey (name k) :ParameterValue v})))
+  "Convert map `m` to AWS paramater array."
+  [m]
+  (into [] (for [[k v] m] {:ParameterKey (name k) :ParameterValue v})))
+
+(defn- k->aws-resource-ref 
+  "Convert key `k` to AWS logical resource reference declaration."
+  [k]
+  {:Ref (name k)})
 
 (defn create-readers 
   "Create edn reader literals.
@@ -79,8 +85,10 @@
   [env params]
   {'eid (fn [k] (eid k env))
    'kvp (fn [m] (kv-params->aws-params m))
-   'ref (fn [k] {:Ref (name k)})
+   'ref (fn [k] (k->aws-resource-ref k))
    'sub (fn [k] (get params k))})
+
+;; # Config Reader 
 
 (defn read-edn
   "Read an AWS edn configuration.
