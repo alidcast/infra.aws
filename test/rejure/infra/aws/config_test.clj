@@ -7,31 +7,41 @@
   (let [read-edn #(icfg/read-edn % :test)]
 
     (testing "serialize config properties to aws spec"
-      (testing "template url"
-        (testing "exapnds tuple shorthand into aws option map"
-         (is (= (read-edn (pr-str {:Foo ["http:s3.example.com/template.json"
-                                         {:Capabilities ["ROLE_IAM"]}]}))
-                {:Foo {:StackName   :Foo
-                       :TemplateURL "http:s3.example.com/template.json"
-                       :Capabilities ["ROLE_IAM"]}}))))
+      (testing "case: template url"
+        (testing "expands tuple shorthand into aws option map"
+          (is (= (read-edn (pr-str {:Stack ["http:s3.example.com/template.json"
+                                            {:Capabilities ["ROLE_IAM"]}]}))
+                 {:Stack {:StackName   :Stack
+                          :TemplateURL "http:s3.example.com/template.json"
+                          :Capabilities ["ROLE_IAM"]}}))))
 
-      (testing "template body"
-        (let [result {:Foo {:StackName   :Foo
-                            :TemplateBody {:Resources {:Foo {:Type "AWS::Service::Module"
-                                                             :Properties {:Name "foo-bar"}}}}}}]
+      (testing "case: template body"
+        (let [result {:Stack {:StackName   :Stack
+                              :TemplateBody {:Resources {:Foo {:Type "AWS::Service::Module"
+                                                               :Properties {:Name "foo-bar"}}}}}}]
           (testing "aws options map are left untouched"
-            (is (= (read-edn (pr-str {:Foo {:Resources {:Foo {:Type "AWS::Service::Module"
-                                                              :Properties {:Name "foo-bar"}}}}}))
+            (is (= (read-edn (pr-str {:Stack {:Resources {:Foo {:Type "AWS::Service::Module"
+                                                                :Properties {:Name "foo-bar"}}}}}))
                    result)))
           (testing "tuple shorthand is expanded into aws option map"
-            (is (= (read-edn (pr-str {:Foo {:Resources {:Foo [:Service.Module
-                                                              {:Name "foo-bar"}]}}}))
+            (is (= (read-edn (pr-str {:Stack {:Resources {:Foo [:Service.Module
+                                                                {:Name "foo-bar"}]}}}))
                    result))))))
 
-    (testing "config reader literals"
+    (testing "interprets config reader literals correctly"
       (testing "#kvp converts key-value parameters to aws parameter array"
-        (is (= (read-edn "{:Foo [\"url\" {:Parameters #kvp {:Key1 \"Value1\"}}]}")
-               {:Foo {:StackName    :Foo
-                      :TemplateURL  "url"
-                      :Parameters [{:ParameterKey "Key1"
-                                    :ParameterValue "Value1"}]}}))))))
+        (is (= (read-edn "{:Stack [\"url\" {:Parameters #kvp {:Key1 \"Value1\"}}]}")
+               {:Stack {:StackName    :Stack
+                        :TemplateURL  "url"
+                        :Parameters [{:ParameterKey "Key1"
+                                      :ParameterValue "Value1"}]}})))
+      
+      (testing "#with-params adds system parameters for each resource identifier"
+        (is (= (read-edn "{:Stack {:Resources #with-params {:Foo {}}}}")
+               {:Stack {:StackName    :Stack
+                        :TemplateBody {:Resources 
+                                       {:Foo {}
+                                        :FooParam {:Type "AWS::SSM::Parameter"
+                                                   :Properties {:Name "Foo"
+                                                                :Value {:Ref "Foo"}}}}}}})))
+      )))

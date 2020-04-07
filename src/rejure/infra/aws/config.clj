@@ -78,15 +78,33 @@
   [k]
   {:Ref (name k)})
 
+(defn- with-system-param-resources
+  "Takes resource map `m` and add a sytem parameter resource for each identifier key."
+  [m]
+  (reduce-kv
+   (fn [acc k _]
+     (assoc acc
+            (keyword (str (name k) "Param"))
+            [:SSM.Parameter {:Name (name k) :Value (k->aws-resource-ref k)}]))
+   m
+   m))
+
+(comment 
+  (with-system-param-resources {:AuthPool {}
+                                :AuthPoolClient {}}))
+
+(comment 
+  )
 (defn create-readers 
   "Create edn reader literals.
    Where appropriate we match the AWS function utilities provided for YAML/JSON templates.
    (ref: https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/intrinsic-function-reference.html)"
   [env params]
   {'eid (fn [k] (eid k env))
-   'kvp (fn [m] (kv-params->aws-params m))
-   'ref (fn [k] (k->aws-resource-ref k))
-   'sub (fn [k] (get params k))})
+   'kvp kv-params->aws-params
+   'ref k->aws-resource-ref
+   'sub (fn [k] (get params k))
+   'with-params with-system-param-resources})
 
 ;; # Config Reader 
 
