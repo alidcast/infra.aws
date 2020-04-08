@@ -6,34 +6,34 @@
 ;; # Config Helpers
 
 (defn eid 
-  "Returns identifier key based on environment.
-   Takes `ident` keyword and `env` keyword as arguments."
-  [ident env]
-  (str (name ident) "-" (name env)))
+  "Returns resource id based on identifier key `k` and environment key `env`."
+  [k env]
+  (str (name k) "-" (name env)))
 
 ;; # Config Serializer
 
 (defn- template-url? [v]
   (vector? v))
 
-(defn- ->aws-template-url
-  "Accepts stack name keyword `k` and template `url` string."
-  [k url]
-  {:StackName   k
-   :TemplateURL url})
 
 (defn- ->aws-resource-type
-  "Converts resource key `k` to AWS identifier type.
+  "Return AWS physical resource identifier type based on resource key `k`.
    The key should be in ':<Service>.<Module>' format.
    i.e. :Service.Module -> AWS::Service::Module"
   [k]
   (string/join "::" (cons "AWS" (string/split (name k) #"\."))))
 
+(defn- ->aws-template-url
+  "Returns AWS template url options based on stack `name` and `url`."
+  [name url]
+  {:StackName   name
+   :TemplateURL url})
+
 (defn- ->aws-template-body
-  "Accepts stack name keyword `k` and template map `body`.
+  "Returns AWS template body options based on stack `name` and template `body`.
    Expands a resource's tuple shorthand into AWS type+properties map."
-  [k body]
-  {:StackName    k
+  [name body]
+  {:StackName    name
    :TemplateBody (assoc body 
                         :Resources 
                         (reduce-kv (fn [m k v]
@@ -48,10 +48,11 @@
 ;; TODO: guard against invalid vector shorthand count 
 ;; TODO: guard against invalid resource map
 (defn serialize-config
-  "Expects mapping of resource names to template options.
+  "Expects `config` to be a mapping of resource names to template options.
    A template options can either be a vector, if template is dervied from a url, or a map.
    For vector, first arg is url string and second is aws options.
-   For map, can declare aws options directly, but we provide shorthand for `:Resource` property."
+   For map, can declare AWS options directly but we provide a tuple shorthand for declararing 
+   a resources, see `->aws-template-body` for details."
   [config]
   (reduce-kv
    (fn [m k v]
@@ -67,17 +68,17 @@
 ;; # Config Reader Literals
 
 (defn- kv-params->aws-params
-  "Convert param map `m` to AWS paramater array."
+  "Returns AWS parameter array based on key-value param map `m`."
   [m]
   (into [] (for [[k v] m] {:ParameterKey (name k) :ParameterValue v})))
 
 (defn- k->aws-resource-ref 
-  "Convert key `k` to AWS logical resource reference declaration."
+  "Return AWS logical resource reference based on resource key `k`."
   [k]
   {:Ref (name k)})
 
 (defn- with-aws-ssm-param-resources
-  "Include a sytem manager parameter resource for each key in resource map."
+  "Return resource map `m` with a Sytem Manager Parameters merged in for each resource."
   [m]
   (reduce-kv
    (fn [acc k _]
@@ -88,9 +89,9 @@
    m))
 
 (defn create-readers 
-  "Create edn reader literals.
-   Where appropriate we match the AWS function utilities provided for YAML/JSON templates.
-   (ref: https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/intrinsic-function-reference.html)"
+  "Returns edn reader literals, expects `env` keyword and `param` map.
+   Where appropriate we match the AWS function utilities provided for YAML/JSON templates."
+  ;; ref: https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/intrinsic-function-reference.html
   [env params]
   {'eid (fn [k] (eid k env))
    'kvp kv-params->aws-params
@@ -98,13 +99,12 @@
    'sub (fn [k] (get params k))
    'with-ssm-params with-aws-ssm-param-resources})
 
-;; # Config Reader 
+;; # Config Reader
 
 ;; TODO prefix resources with clf 
+;; TODO get system parameters
 (defn read-edn
-  "Read an AWS edn configuration.
-   Takes an edn string `s`, env keyword `env` and parameter map `params` as arguments.
-   Returns mapping of resources with their template options serialized to match aws spec.
+  "Return serialized AWS config based edn string `s`, env keyword `env` and parameter map `params`.
    See `serialize-config` for templating details."
   ([s env] (read-edn s env {}))
   ([s env params]
