@@ -30,9 +30,9 @@ Since [AWS Cloudformation Stack options](https://docs.aws.amazon.com/AWSCloudFor
 ```clj
 {:MyStack ["http:/s3.amazonaws.com/path-to-template"
            {:Parameters []}]}
-;; {:StackName   "MyStack"
-;;  :TemplateURL "http:/s3.amazonaws.com/path-to-template"
-;;  :Parameters  []}
+;; {:MyStack {:StackName   "MyStack"
+;;            :TemplateURL "http:/s3.amazonaws.com/path-to-template"
+;;            :Parameters  []}}
 ```
 
 **Custom Templates**
@@ -46,8 +46,8 @@ For declaring [Resources](https://docs.aws.amazon.com/AWSCloudFormation/latest/U
  {:Resources {:ExResource [:Service.Module
                            {:Name "Foo"}]}}}
 ;; {:MyStack 
-;; {:Resources {:ExResource [{:Type "AWS::Service::Module"
-;;                            :Properties {:Name "Foo"}}]}}}
+;;  {:Resources {:ExResource [{:Type "AWS::Service::Module"
+;;                             :Properties {:Name "Foo"}}]}}}
 ```
 
 #### Writing Templates
