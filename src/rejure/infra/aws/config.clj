@@ -6,19 +6,20 @@
 ;; # Config Helpers
 ;; Useful for retrieving serialized config info.
   
-(defn eid 
-  "Returns environment unique id based on identifier key `k` and `env` keyword."
+(defn eid "Creates environment unique id based on identifier key `k` and `env` keyword."
   [k env]
   (str (name k) "-" (name env)))
 
-(defn get-ssm-param-keys
-  "Returns all System Manager Parameter keys declared in config map `cfg` templates."
+(defn get-ssm-param-keys "Gets all System Manager Parameter keys declared in config's `cfg` templates."
   [cfg]
   (reduce (fn [acc [_ tplate]]
-            (if (map? tplate)
-              (let [ks (for [[k v] tplate]
-                         (when (= (:Type v) "AWS::SSM::Parameter")
-                           k))]
+            (if (map? (:TemplateBody tplate))
+              (let [ks (reduce (fn [acc [_ v]]
+                              (if (= (:Type v) "AWS::SSM::Parameter")
+                                (conj acc (:Name (:Properties v)))
+                                acc))
+                            []
+                            (:Resources (:TemplateBody tplate)))]
                 (into acc ks))
               acc))
           []
@@ -29,34 +30,34 @@
 
 ;; ## Shorthands Serializer
 
-(defn- template-url? [v]
+(defn- url-tplate? "Checks whether value `v` is a url template declaration."
+  [v]
   (vector? v))
 
-(defn- ->aws-resource-type
-  "Return AWS physical resource identifier type based on resource key `k`.
+(defn- k->aws-resource-type
+  "Coverts key `k` to a AWS physical resource identifier type.
    The key should be in ':<Service>.<Module>' format, i.e, :Service.Module -> AWS::Service::Module"
   [k]
   (string/join "::" (cons "AWS" (string/split (name k) #"\."))))
 
-(defn- ->aws-template-url
-  "Returns AWS template url options based on stack `name` and `url`."
+(defn- mk-aws-url-tplate "Makes AWS template from stack `name` and template `url`."
   [name url]
   {:StackName name :TemplateURL url})
 
-(defn- ->aws-template-body
-  "Returns AWS template body options based on stack `name` and template `body`.
-   Expands a resource's tuple shorthand into AWS type+properties map."
-  [name body]
+(defn- mk-aws-opts-tplate
+  "Makes AWS template from stack `name` and options `opts`.
+   Allows declaring resources as type+properties tuples that are converted into their map form."
+  [name opts]
   {:StackName    name
-   :TemplateBody (assoc body 
+   :TemplateBody (assoc opts 
                         :Resources 
                         (reduce-kv (fn [m k v]
                                      (assoc m  k (if (vector? v)
-                                                     {:Type (->aws-resource-type (first v))
+                                                     {:Type (k->aws-resource-type (first v))
                                                       :Properties (second v)}
                                                      v)))
                                    {}
-                                   (:Resources body)))})
+                                   (:Resources opts)))})
 
 
 ;; TODO: guard against invalid vector shorthand count 
@@ -66,33 +67,31 @@
    A template options can either be a vector, if template is dervied from a url, or a map.
    For vector, first arg is url string and second is aws options.
    For map, can declare AWS options directly but we provide a tuple shorthand for declararing 
-   a resources, see `->aws-template-body` for details."
+   a resources, see `->aws-tplate-body` for details."
   [cfg]
   (reduce-kv
    (fn [m k v]
-     (let [template   (if (template-url? v)
+     (let [template   (if (url-tplate? v)
                         (let [[url clf-opts] v]
-                          (merge (->aws-template-url k url)
+                          (merge (mk-aws-url-tplate k url)
                                  clf-opts))
-                        (->aws-template-body k v))]
+                        (mk-aws-opts-tplate k v))]
        (assoc m k template)))
    {}
    cfg))
 
 ;; ## Reader Literals Factory
 
-(defn- kv-params->aws-params
-  "Returns AWS parameter array based on key-value param map `m`."
+(defn- kv-params->aws-params "Converts key-value map `m` to AWS parameter array specfication."
   [m]
   (into [] (for [[k v] m] {:ParameterKey (name k) :ParameterValue v})))
 
-(defn- k->aws-resource-ref 
-  "Return AWS logical resource reference based on resource key `k`."
+(defn- k->aws-resource-ref "Coverts key `k` to AWS logical resource reference."
   [k]
   {:Ref (name k)})
 
-(defn- with-aws-ssm-param-resources
-  "Return resource map `m` with a Sytem Manager Parameters merged in for each resource."
+(defn- with-aws-ssm-params 
+  "Auto-includes a Sytem Manager Parameter for each declared resource identifier in map `m`."
   [m]
   (reduce-kv
    (fn [acc k _]
@@ -103,21 +102,25 @@
    m))
 
 (defn create-readers 
-  "Returns edn reader literals, expects `env` keyword and `param` map.
+  "Create edn reader literals using `env` keyword and `param` map.
    Where appropriate we match the AWS function utilities provided for YAML/JSON templates."
   [env params]
   {'eid (fn [k] (eid k env))
    'kvp kv-params->aws-params
    'ref k->aws-resource-ref
    'sub (fn [k] (get params k))
-   'with-ssm-params with-aws-ssm-param-resources})
+   'with-ssm-params with-aws-ssm-params})
 
 ;; ## Config Reader
 
+;; TODO provide opts map so eids can have optional prefix 
+;;      though also need to account how eid functions would have samee access.
+;;      maybe an EDN parser factory.
 ;; TODO prefix resources with clf 
+;;
 ;; TODO get system parameters
 (defn read-edn
-  "Return serialized AWS config based edn string `s`, environment keyword `env` and parameter map `params`.
+  "Reads config edn string `s` based on environment keyword `env` and an optional `params` map.
    See `serialize-config` for templating details."
   ([s env] (read-edn s env {}))
   ([s env params]

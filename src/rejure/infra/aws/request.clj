@@ -3,14 +3,14 @@
   (:require [clojure.data.json :as json]
             [cognitect.aws.client.api :as aws]))
 
-;; # Cloudformation Operations 
+;; # Cloudformation Operations
 
 (def clf-client
   "Clouformation client."
   (aws/client {:api :cloudformation}))
 
 (defn- req-clf
-  "Request Cloudformation operation `op` with options `opts`."
+  "Returns Cloudformation request from operation `op` with options `opts`."
   [op opts]
   (aws/invoke clf-client {:op op
                           :request opts}))
