@@ -14,9 +14,9 @@
 (defn get-ssm-param-keys
   "Returns all System Manager Parameter keys declared in config map `cfg` templates."
   [cfg]
-  (reduce (fn [acc [_ template]]
-            (if (map? template)
-              (let [ks (for [[k v] template]
+  (reduce (fn [acc [_ tplate]]
+            (if (map? tplate)
+              (let [ks (for [[k v] tplate]
                          (when (= (:Type v) "AWS::SSM::Parameter")
                            k))]
                 (into acc ks))
