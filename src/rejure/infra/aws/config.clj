@@ -24,7 +24,10 @@
           []
           cfg))
 
-;; # Config Serializer
+;; # Config Reading
+;; Provides shorthand declarations and reader literal utilities.
+
+;; ## Shorthands Serializer
 
 (defn- template-url? [v]
   (vector? v))
@@ -76,7 +79,7 @@
    {}
    cfg))
 
-;; # Config Reader Literals
+;; ## Reader Literals Factory
 
 (defn- kv-params->aws-params
   "Returns AWS parameter array based on key-value param map `m`."
@@ -109,7 +112,7 @@
    'sub (fn [k] (get params k))
    'with-ssm-params with-aws-ssm-param-resources})
 
-;; # Config Reader
+;; ## Config Reader
 
 ;; TODO prefix resources with clf 
 ;; TODO get system parameters
