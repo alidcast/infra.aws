@@ -4,30 +4,41 @@
             [clojure.string :as string]))
 
 ;; # Config Helpers
-
+;; Useful for retrieving serialized config info.
+  
 (defn eid 
-  "Returns resource id based on identifier key `k` and environment key `env`."
+  "Returns environment unique id based on identifier key `k` and `env` keyword."
   [k env]
   (str (name k) "-" (name env)))
+
+(defn get-ssm-param-keys
+  "Returns all System Manager Parameter keys declared in config map `cfg` templates."
+  [cfg]
+  (reduce (fn [acc [_ template]]
+            (if (map? template)
+              (let [ks (for [[k v] template]
+                         (when (= (:Type v) "AWS::SSM::Parameter")
+                           k))]
+                (into acc ks))
+              acc))
+          []
+          cfg))
 
 ;; # Config Serializer
 
 (defn- template-url? [v]
   (vector? v))
 
-
 (defn- ->aws-resource-type
   "Return AWS physical resource identifier type based on resource key `k`.
-   The key should be in ':<Service>.<Module>' format.
-   i.e. :Service.Module -> AWS::Service::Module"
+   The key should be in ':<Service>.<Module>' format, i.e, :Service.Module -> AWS::Service::Module"
   [k]
   (string/join "::" (cons "AWS" (string/split (name k) #"\."))))
 
 (defn- ->aws-template-url
   "Returns AWS template url options based on stack `name` and `url`."
   [name url]
-  {:StackName   name
-   :TemplateURL url})
+  {:StackName name :TemplateURL url})
 
 (defn- ->aws-template-body
   "Returns AWS template body options based on stack `name` and template `body`.
@@ -48,12 +59,12 @@
 ;; TODO: guard against invalid vector shorthand count 
 ;; TODO: guard against invalid resource map
 (defn serialize-config
-  "Expects `config` to be a mapping of resource names to template options.
+  "Expects config `cfg` to be a mapping of resource names to template options.
    A template options can either be a vector, if template is dervied from a url, or a map.
    For vector, first arg is url string and second is aws options.
    For map, can declare AWS options directly but we provide a tuple shorthand for declararing 
    a resources, see `->aws-template-body` for details."
-  [config]
+  [cfg]
   (reduce-kv
    (fn [m k v]
      (let [template   (if (template-url? v)
@@ -63,7 +74,7 @@
                         (->aws-template-body k v))]
        (assoc m k template)))
    {}
-   config))
+   cfg))
 
 ;; # Config Reader Literals
 
@@ -91,7 +102,6 @@
 (defn create-readers 
   "Returns edn reader literals, expects `env` keyword and `param` map.
    Where appropriate we match the AWS function utilities provided for YAML/JSON templates."
-  ;; ref: https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/intrinsic-function-reference.html
   [env params]
   {'eid (fn [k] (eid k env))
    'kvp kv-params->aws-params
@@ -104,7 +114,7 @@
 ;; TODO prefix resources with clf 
 ;; TODO get system parameters
 (defn read-edn
-  "Return serialized AWS config based edn string `s`, env keyword `env` and parameter map `params`.
+  "Return serialized AWS config based edn string `s`, environment keyword `env` and parameter map `params`.
    See `serialize-config` for templating details."
   ([s env] (read-edn s env {}))
   ([s env params]
