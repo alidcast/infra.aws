@@ -41,7 +41,7 @@ Then, setup your stack via the repl:
             [rejure.infra.aws.request :as ir]))
 
 ;; Read the config for the :dev environment
-(def cfg (infra-cfg/read-edn (io/reader "resources/infra-aws-stacks.edn") :dev))
+(def cfg (ic/read-edn (io/reader "resources/infra-aws-stacks.edn") :dev))
 
 (defn get-stack [k] (get cfg (ic/eid k :dev)))
 
@@ -49,6 +49,10 @@ Then, setup your stack via the repl:
   ;; Manage the app's authentication service stacks via the repl
   (ir/create-stack (get-stack :app-auth))
   (ir/delete-stack (get-stack :app-auth))
+
+  ;; Get list of all auto-configured System Parameter keys.
+  ;; You can later retrieve them using aws-api :ssm client.
+  (ic/get-ssm-param-keys cfg)
 )
 ```
 
@@ -146,14 +150,14 @@ Example:
 (def env :dev)
 (def params {})
 
-(def cfg (infra.core/read-config "demo/aws-config.edn" env params))
+(def cfg (ic/read-config "demo/aws-config.edn" env params))
 
 (defn get-stack [k]
-  (get cfg (infra/eid k env)))
+  (get cfg (ic/eid k env)))
 
 (comment 
- (infra.aws/create-stack (get-stack "Stack1"))
- (infra.aws/create-stack (get-stack "Stack2"))
+ (ir/create-stack (get-stack "Stack1"))
+ (ir/create-stack (get-stack "Stack2"))
  )
 ```
 
