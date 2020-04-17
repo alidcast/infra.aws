@@ -68,7 +68,7 @@ Design goals:
 1. Make AWS template configurations explicit, taking advantage of EDN and reader literals.
 2. Provide a way to manage different environments with a single configuration.
 3. Provide tools for setting up and inspecting Cloudformation stacks.
-4. Match the templating options and functions AWS already provides where convenient.
+4. Match the templating options and functions AWS already has, provide shorthands where useful.
 
 ## Status 
 
