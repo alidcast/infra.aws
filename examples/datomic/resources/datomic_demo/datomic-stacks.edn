@@ -1,3 +1,4 @@
+;; Note: If you copy this examples make sure you have the latest template url verions.
 {#eid :demo-storage
  ["https://s3.amazonaws.com/datomic-cloud-1/cft/616-8879/datomic-storage-616-8879.json"
   {}
@@ -5,7 +6,7 @@
 
  #eid :demo-compute
  ["https://s3.amazonaws.com/datomic-cloud-1/cft/616-8879/datomic-solo-compute-616-8879.json"
-  {:KeyName         "demo-datomic"
+  {:KeyName         "demo-datomic" ;; Stack Name 
    :ApplicationName "demo"
    :EnvironmentMap   "{:env :dev}"
    :SystemName       #eid :demo-storage
