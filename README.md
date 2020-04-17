@@ -11,7 +11,7 @@ Imagine you're setting up AWS Cognito for user authentication.
 First configure your Cloudformation's stack template in EDN using the shorthands and reader literal we provide:
 
 ```clj
-;; resources/infra-aws-stacks.edn
+;; resources/aws-stacks.edn
  
  #eid :app-auth ;; Make the stack identifier unique per environment
  {:Resources 
@@ -41,7 +41,7 @@ Then, setup your stack via the repl:
             [rejure.infra.aws.request :as ir]))
 
 ;; Read the config for the :dev environment
-(def cfg (ic/read-edn (io/reader "resources/infra-aws-stacks.edn") :dev))
+(def cfg (ic/read-edn (io/reader "resources/aws-stacks.edn") :dev))
 
 (defn get-stack [k] (get cfg (ic/eid k :dev)))
 
@@ -60,9 +60,9 @@ Then, setup your stack via the repl:
 
 Infra, motivation:
 
-1. There isn't reliable way to manage AWS infrastructure using Clojure. The default solution is to use the AWS cli and write Cloudformation templates with JSON/YAML, though one could also choose an infrastructure-as-code provider such as Terraform (which provides their own templating DSL) or Pulumi (which lets you configure templates via code but does not support Clojure). But having your configurations in another language creates a layer of separation between your application and its infrastructure and demands more work keeping both in sync.
-2. Cloudformation templates options are verbose and existing Clojure libraries that make them easier to write expect you to do so as code rather than as data in EDN files.
-3. No straightforward way to handling different environments and secrets that are exchanged to-and-from an application and its infrastructure.
+- There isn't reliable way to manage AWS infrastructure using Clojure. The default solution is to use the AWS cli and write Cloudformation templates with JSON/YAML, though one could also choose an infrastructure-as-code provider such as Terraform (which provides their own templating DSL) or Pulumi (which lets you configure templates via code but does not support Clojure). But having your configurations in another language creates a layer of separation between your application and its infrastructure and demands more work keeping both in sync.
+- Cloudformation templates options are verbose and existing Clojure libraries that make them easier to write expect you to do so in code rather than as data in EDN files.
+- There isn't a straightforward way to handle different environments and secrets that are exchanged to-and-from an application and its infrastructure.
 
 Design goals:
 1. Make AWS template configurations explicit, taking advantage of EDN and reader literals.
