@@ -1,21 +1,69 @@
 # Infra.AWS (alpha)
 
-Infra provides tools for managing AWS Cloudformation resources.
+Infra provides tools for managing AWS infrastructure. Configure Cloudformation templates succinctly and explictly in EDN format, and setup their respective stacks via the cli or repl.
 
-*Note: Currently you can only create resources via the repl but that still beats having to create resources manually via the aws console or having to define configurations via YAML/JSON files. In the future Infra might provide a cli and terminal interface for creating cloudformation stacks.*
+*Note: Currently you can only create resources via the repl but that still beats having to create resources using the aws console or having to define configurations in YAML/JSON files. In the future Infra will likely provide a cli for creating cloudformation stacks.*
 
+## Preview 
+
+Imagine you're setting up AWS Cognito for user authentication.
+
+First configure your Cloudformation's stack template in EDN with the shorthands and reader literal we provide:
+
+```clj
+;; resources/infra-aws-stacks.edn
+ 
+ #eid :app-auth ;; Make the stack identifier unique per environment
+ {:Resources 
+ ;; Configure Cognito User Pool and Pool Client Resources
+ ;; Automatically including a System Manager Parameter for each resource.
+  #with-ssm-params
+   {:AuthPool    [:Cognito.UserPool
+                  {:UserPoolName  #eid :app-auth-pool
+                  :AutoVerifiedAttributes ["email"]
+                  :Schema  [{:Name               "email"
+                              :AttributeDataType  "String"
+                              :Required           true
+                              :Mutable            true}]}]
+  :AuthPoolClient [:Cognito.UserPoolClient
+                  {:ClientName       #eid :app-auth-pool-client
+                    :UserPoolId       #ref :AuthPool
+                    :ExplicitAuthFlows ["ALLOW_USER_PASSWORD_AUTH"
+                                        "ALLOW_REFRESH_TOKEN_AUTH"]}]}}
+```
+
+
+Then, setup your stack via the repl:
+
+```clj
+(ns app.infra.provider
+  (:require [rejure.infra.aws.config :as infra-cfg]
+            [rejure.infra.aws.request :as infra-req]))
+
+;; Read the config for the :dev environment
+(def cfg (infra-cfg/read-edn (io/reader "resources/infra-aws-stacks.edn") :dev))
+
+(defn get-stack [k] (get cfg (infra-cfg/eid k :dev)))
+
+(comment
+  ;; Create the app's auth Cloudformation stack programmatically
+  (infra-req/create-stack (get-stack "app-auth")))
+```
+
+`
 ## Rationale 
 
 Infra, motivation:
 
 1. There isn't reliable way to manage AWS infrastructure using Clojure. The default solution is to use the AWS cli and write Cloudformation templates with JSON/YAML, though one could also choose an infrastructure-as-code provider such as Terraform (which provides their own templating DSL) or Pulumi (which lets you configure templates via code but does not support Clojure). But having your configurations in another language creates a layer of separation between your application and its infrastructure and demands more work keeping both in sync.
 2. Cloudformation templates maps are verbose and there isn't an explicit yet succinct way to write them with Clojure. Existing libraries that make them easier to write expect you to do so as code rather than as data in EDN files.
-3. No straight forward way to handling different environments and secrets that are exchanged to-and-from an application and its infrastructure.
+3. No straightforward way to handling different environments and secrets that are exchanged to-and-from an application and its infrastructure.
 
 Design goals:
 1. Make AWS template configurations explicit, taking advantage of EDN and reader literals.
 2. Provide a way to manage different environments with a single configuration.
 3. Provide tools for setting up and inspecting Cloudformation stacks.
+4. Match the templating functions AWS already provides where possible.
 
 ## Usage
 
