@@ -79,7 +79,7 @@ Alpha. Clojar has not been deployed.
 - [Configuring Resources](#configuring-resources)
   - [Resource Types](#resource-types)
   - [Writing Templates](#writing-templates)
-- [Creating resources](#creating-resources)
+- [Managing Resources](#managing-resources)
 
 This documentation assumes that you're familiar with [AWS Cloudformation](https://docs.aws.amazon.com/cloudformation/index.html), though you'll mostly just need to reference the [resource property options](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-template-resource-type-ref.html) for the resources you'll be creating.
 
@@ -126,7 +126,7 @@ Infra provides a few template literals to make it easier to markup your template
 
 AWS has [intrinsic function utilities](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/intrinsic-function-reference.html) it uses for marking up JSON. If a reader literal serves a similar purpose as an existing utility we name it after its JSON counterpart.
 
-You can look at the [example configs](https://github.com/rejure/infra.aws/tree/master/example/resources/demo)s to see the template literals listed below in action. 
+You can look at the [examples][(https://github.com/rejure/infra.aws/tree/master/example/resources/demo)s to see the template literals listed below in action. 
 
 List of available reader literals: 
 
@@ -138,7 +138,7 @@ List of available reader literals:
 
 * `sub`: substitute a keyword with a parameter passed to configuration reader.
 
-### Creating resources
+### Managing Resources
 
 Right now you can only create resources via the repl - but that still beats having to create them via aws console.
 
