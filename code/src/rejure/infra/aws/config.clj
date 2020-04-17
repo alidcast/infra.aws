@@ -2,13 +2,6 @@
   (:require [clojure.edn :as edn]
             [clojure.string :as string]))
 
-;; ~ TODO ~
-;; [] provide opts map so eids can have optional prefix 
-;;    though also need to account how eid functions would have samee access.
-;;      maybe an EDN parser factory.
-;; [] prefix resources with clf 
-;; [] spec out config opts
-
 ;; # Config Helpers
 ;; Useful for retrieving serialized config info.
   
