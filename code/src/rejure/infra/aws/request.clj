@@ -1,16 +1,13 @@
-(ns rejure.infra.aws.request
-  "Request AWS Cloudformation operations."
+(ns rejure.infra.aws.request "Request AWS Cloudformation operations."
   (:require [clojure.data.json :as json]
             [cognitect.aws.client.api :as aws]))
 
 ;; # Cloudformation Operations
 
-(def clf-client
-  "Clouformation client."
+(def clf-client "Clouformation client."
   (aws/client {:api :cloudformation}))
 
-(defn- req-clf
-  "Returns Cloudformation request from operation `op` with options `opts`."
+(defn- req-clf "Request Cloudformation operation `op` with options `opts`."
   [op opts]
   (aws/invoke clf-client {:op op
                           :request opts}))

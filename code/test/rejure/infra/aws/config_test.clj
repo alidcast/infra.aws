@@ -36,12 +36,13 @@
                         :Parameters [{:ParameterKey "Key1"
                                       :ParameterValue "Value1"}]}})))
       
-      (testing "#with-params adds system parameters for each resource identifier"
-        (is (= (read-edn "{:Stack {:Resources #with-params {:Foo {}}}}")
+      (testing "#with-ssm-params adds system parameters for each resource identifier"
+        (is (= (read-edn "{:Stack {:Resources #with-ssm-params {:Foo {}}}}")
                {:Stack {:StackName    :Stack
                         :TemplateBody {:Resources 
                                        {:Foo {}
                                         :FooParam {:Type "AWS::SSM::Parameter"
                                                    :Properties {:Name "Foo"
-                                                                :Value {:Ref "Foo"}}}}}}})))
+                                                                :Value {:Ref "Foo"}
+                                                                :Type  "String"}}}}}})))
       )))
