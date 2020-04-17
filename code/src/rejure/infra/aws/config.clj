@@ -2,6 +2,13 @@
   (:require [clojure.edn :as edn]
             [clojure.string :as string]))
 
+;; ~ TODO ~
+;; [] provide opts map so eids can have optional prefix 
+;;    though also need to account how eid functions would have samee access.
+;;      maybe an EDN parser factory.
+;; [] prefix resources with clf 
+;; [] spec out config opts
+
 ;; # Config Helpers
 ;; Useful for retrieving serialized config info.
   
@@ -59,8 +66,6 @@
                                    (:Resources opts)))})
 
 
-;; TODO: guard against invalid vector shorthand count 
-;; TODO: guard against invalid resource map
 (defn serialize-config
   "Expects config `cfg` to be a mapping of resource names to template options.
    A template options can either be a vector, if template is dervied from a url, or a map.
@@ -112,12 +117,6 @@
 
 ;; ## Config Reader
 
-;; TODO provide opts map so eids can have optional prefix 
-;;      though also need to account how eid functions would have samee access.
-;;      maybe an EDN parser factory.
-;; TODO prefix resources with clf 
-;;
-;; TODO get system parameters
 (defn read-edn
   "Reads config edn string `s` based on environment keyword `env` and an optional `params` map.
    See `serialize-config` for templating details."
