@@ -37,8 +37,8 @@ Then, setup your stack via the repl:
 
 ```clj
 (ns app.infra.provider
-  (:require [rejure.infra.aws.config :as ic]
-            [rejure.infra.aws.request :as ir]))
+  (:require [infra.aws.config :as ic]
+            [infra.aws.request :as ir]))
 
 ;; Read the config for the :dev environment
 (def cfg (ic/read-edn (io/reader "resources/aws-stacks.edn") :dev))
