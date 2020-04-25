@@ -1,4 +1,4 @@
-(ns rejure.infra.aws.request "Request AWS Cloudformation operations."
+(ns infra.aws.request "Request AWS Cloudformation operations."
   (:require [clojure.data.json :as json]
             [cognitect.aws.client.api :as aws]))
 

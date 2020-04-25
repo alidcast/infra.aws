@@ -1,7 +1,7 @@
-(ns rejure.infra.aws.config-test
+(ns infra.aws.config-test
   (:require [clojure.test :refer [deftest testing is]]
             ;; [clojure.data.json :as json]
-            [rejure.infra.aws.config :as icfg]))
+            [infra.aws.config :as icfg]))
 
 (deftest read-edn-test
   (let [read-edn #(icfg/read-edn % :test)]

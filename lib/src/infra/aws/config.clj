@@ -1,4 +1,4 @@
-(ns rejure.infra.aws.config "Configure AWS Cloudformation templates with EDN."
+(ns infra.aws.config "Configure AWS Cloudformation templates with EDN."
   (:require [clojure.edn :as edn]
             [clojure.string :as string]))
 
