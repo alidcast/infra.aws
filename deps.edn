@@ -1,4 +1,4 @@
-{:paths ["src"]
+{:paths ["lib/src"]
 
  :deps {org.clojure/clojure                {:mvn/version "1.10.1"}
         org.clojure/data.json              {:mvn/version "0.2.6"}
@@ -9,5 +9,5 @@
 
  :aliases
  {:test
-  {:extra-paths ["test"]
+  {:extra-paths ["lib/test"]
    :extra-deps  {lambdaisland/kaocha {:mvn/version "0.0-554"}}}}}
