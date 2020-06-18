@@ -1,9 +1,10 @@
-(ns infra.aws.config "Configure AWS Cloudformation templates with EDN."
+(ns infra.aws.config 
+  "Configure AWS Cloudformation templates with EDN."
   (:require [clojure.edn :as edn]
             [clojure.string :as string]))
 
 ;; # Config Helpers
-;; Useful for retrieving serialized config info.
+;; Exposed helpers for retrieving serialized config info.
   
 (defn eid "Creates environment unique id based on identifier key `k` and `env` keyword."
   [k env]
@@ -24,10 +25,8 @@
           []
           cfg))
 
-;; # Config Reading
-;; Provides shorthand declarations and reader literal utilities.
-
-;; ## Shorthands Serializer
+;; # Config Serialization Factorty
+;; Allows shorthand declarations for AWS Cloudformation templates. See [serialize-config] for details.
 
 (defn- url-tplate? "Checks whether value `v` is a url template declaration."
   [v]
@@ -39,11 +38,11 @@
   [k]
   (string/join "::" (cons "AWS" (string/split (name k) #"\."))))
 
-(defn- mk-aws-url-tplate "Makes AWS template from stack `name` and template `url`."
+(defn- make-aws-url-tplate "Makes AWS template from stack `name` and template `url`."
   [name url]
   {:StackName name :TemplateURL url})
 
-(defn- mk-aws-opts-tplate
+(defn- make-aws-opts-tplate
   "Makes AWS template from stack `name` and options `opts`.
    Allows declaring resources as type+properties tuples that are converted into their map form."
   [name opts]
@@ -70,14 +69,14 @@
    (fn [m k v]
      (let [template   (if (url-tplate? v)
                         (let [[url clf-opts] v]
-                          (merge (mk-aws-url-tplate k url)
+                          (merge (make-aws-url-tplate k url)
                                  clf-opts))
-                        (mk-aws-opts-tplate k v))]
+                        (make-aws-opts-tplate k v))]
        (assoc m k template)))
    {}
    cfg))
 
-;; ## Reader Literals Factory
+;; # Config Reader Literals Factory
 
 (defn- kv-params->aws-params "Converts key-value map `m` to AWS parameter array specfication."
   [m]
@@ -103,12 +102,13 @@
    Where appropriate we match the AWS function utilities provided for YAML/JSON templates."
   [env params]
   {'eid (fn [k] (eid k env))
-   'kvp kv-params->aws-params
-   'ref k->aws-resource-ref
-   'sub (fn [k] (get params k))
-   'with-ssm-params with-aws-ssm-params})
+   'aws/kvp kv-params->aws-params
+   'aws/with-ssm-params with-aws-ssm-params
+   ;; aws built-ins
+   'aws/ref k->aws-resource-ref
+   'aws/sub (fn [k] (get params k))})
 
-;; ## Config Reader
+;; # Config Reader
 
 (defn read-edn
   "Reads config edn string `s` based on environment keyword `env` and an optional `params` map.

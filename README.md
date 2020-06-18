@@ -12,7 +12,7 @@ Example:
 
 ```clj
 ;; resources/aws-stacks.edn
- #eid :app-auth ;; Make the stack identifier unique per environment
+{#eid :app-auth ;; Make the stack identifier unique per environment
  {:Resources 
  ;; Configure AWS Cognito UserPool and UserPoolClient Resources
  ;; Automatically including a System Manager Parameters for each resource identifier.
@@ -21,7 +21,7 @@ Example:
                   {:UserPoolName  #eid :app-auth-pool}]
   :AuthPoolClient [:Cognito.UserPoolClient
                   {:ClientName       #eid :app-auth-pool-client
-                   :UserPoolId      #aws/ref :AuthPool}]}}
+                   :UserPoolId      #aws/ref :AuthPool}]}}}
 
 
 ;; Read the config for the :dev environment

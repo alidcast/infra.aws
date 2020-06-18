@@ -1,5 +1,9 @@
 # infra.aws
 
+Tools for managing AWS cloudformation resources.
+
+## Usage 
+
 - [Configuring Resources](#configuring-resources)
   - [Resource Types](#resource-types)
   - [Writing Templates](#writing-templates)
@@ -56,11 +60,11 @@ List of available reader literals:
 
 * `eid`: append environment info to an identifier string. Useful for naming resources per environment.
 
-* `kvp`: convert key-value parameter map to aws parameter array.
+* `aws/kvp`: convert key-value parameter map to aws parameter array.
 
-* `ref`: reference a resource by its [logical id](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/resources-section-structure.html).
+* `aws/ref`: reference a resource by its [logical id](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/resources-section-structure.html).
 
-* `sub`: substitute a keyword with a parameter passed to configuration reader.
+* `aws/sub`: substitute a keyword with a parameter passed to configuration reader.
 
 ### Managing Resources
 

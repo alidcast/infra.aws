@@ -30,19 +30,18 @@
 
     (testing "interprets config reader literals correctly"
       (testing "#kvp converts key-value parameters to aws parameter array"
-        (is (= (read-edn "{:Stack [\"url\" {:Parameters #kvp {:Key1 \"Value1\"}}]}")
+        (is (= (read-edn "{:Stack [\"url\" {:Parameters #aws/kvp {:Key1 \"Value1\"}}]}")
                {:Stack {:StackName    :Stack
                         :TemplateURL  "url"
                         :Parameters [{:ParameterKey "Key1"
                                       :ParameterValue "Value1"}]}})))
-      
+
       (testing "#with-ssm-params adds system parameters for each resource identifier"
-        (is (= (read-edn "{:Stack {:Resources #with-ssm-params {:Foo {}}}}")
+        (is (= (read-edn "{:Stack {:Resources #aws/with-ssm-params {:Foo {}}}}")
                {:Stack {:StackName    :Stack
-                        :TemplateBody {:Resources 
+                        :TemplateBody {:Resources
                                        {:Foo {}
                                         :FooParam {:Type "AWS::SSM::Parameter"
                                                    :Properties {:Name "Foo"
                                                                 :Value {:Ref "Foo"}
-                                                                :Type  "String"}}}}}})))
-      )))
+                                                                :Type  "String"}}}}}}))))))
