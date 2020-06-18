@@ -1,13 +1,6 @@
-{:paths ["lib/src"]
-
- :deps {org.clojure/clojure                {:mvn/version "1.10.1"}
-        org.clojure/data.json              {:mvn/version "0.2.6"}
-        com.cognitect/anomalies            {:mvn/version "0.1.12"}
-        com.cognitect.aws/api              {:mvn/version "0.8.445"}
-        com.cognitect.aws/endpoints        {:mvn/version "1.1.11.749"}
-        com.cognitect.aws/cloudformation   {:mvn/version "773.2.575.0"}}
-
+{:deps {infra/infra.aws {:local/root "./infra.aws"}}
  :aliases
  {:test
-  {:extra-paths ["lib/test"]
+  {:main-opts   ["-m" "kaocha.runner"]
+   :extra-paths ["infra.aws/test"]
    :extra-deps  {lambdaisland/kaocha {:mvn/version "0.0-554"}}}}}
