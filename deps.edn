@@ -1,6 +1,7 @@
-{:deps {infra/infra.aws {:local/root "./infra.aws"}}
+{:paths ["infra.aws/src"]
+ :deps {infra.aws/example {:local/root "./example"}}
  :aliases
  {:test
-  {:main-opts   ["-m" "kaocha.runner"]
-   :extra-paths ["infra.aws/test"]
+  {:extra-paths ["infra.aws/test"]
+   :main-opts   ["-m" "kaocha.runner"]
    :extra-deps  {lambdaisland/kaocha {:mvn/version "0.0-554"}}}}}

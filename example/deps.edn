@@ -1,0 +1,2 @@
+{:paths ["config" "src"]
+ :deps {infra.aws {:local/root "../infra.aws"}}}

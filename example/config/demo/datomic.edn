@@ -1,0 +1,16 @@
+;; Datomic Cloudformation Stacks Example 
+;; note: If you copy this examples make sure you have the latest template url verions.
+{:cloudformation/stacks
+ {#eid :demo-storage
+  ["https://s3.amazonaws.com/datomic-cloud-1/cft/616-8879/datomic-storage-616-8879.json"
+   {}
+   {:Capabilities ["CAPABILITY_NAMED_IAM"]}]
+
+  #eid :demo-compute
+  ["https://s3.amazonaws.com/datomic-cloud-1/cft/616-8879/datomic-solo-compute-616-8879.json"
+   {:KeyName         "demo-datomic" ;; ec2 keypair name
+    :ApplicationName "demo"
+    :EnvironmentMap   "{:env :dev}"
+    :SystemName       #eid :demo-storage
+    :PreloadDb        ""}
+   {:Capabilities ["CAPABILITY_NAMED_IAM"]}]}}
