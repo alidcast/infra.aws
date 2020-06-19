@@ -93,9 +93,13 @@
    (fn [acc k _]
      (assoc acc
             (keyword (str (name k) "Param"))
-            [:SSM.Parameter {:Name (name k) :Value (k->aws-resource-ref k) :Type "String"}]))
+            {:Type "AWS::SSM::Parameter"
+             :Properties {:Name (name k) :Type "String" :Value (k->aws-resource-ref k)}}))
    m
    m))
+
+[:SSM.Parameter
+ {:Name "Foo", :Type "String", :Value {:Ref "Foo"}}]
 
 (defn create-readers 
   "Create edn reader literals using `env` keyword and `param` map.
