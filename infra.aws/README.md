@@ -15,7 +15,15 @@ Note: AWS Credentials are looked up according to AWS's [Java SDK](https://docs.a
 
 ### Configuring Resources
 
-Your edn file must be a mapping of resource names to their template bodies.
+
+Configure all cloudformation stacks under the `:cloudformation/stacks` property.
+
+Each option is a mapping of stack names to their resource template configurations.
+
+```clj
+{:cloudformation/stacks  
+ {:MyStack {,,,}}}
+```
 
 #### Resource Types
 
@@ -41,7 +49,7 @@ For declaring [Resources](https://docs.aws.amazon.com/AWSCloudFormation/latest/U
 
 ```clj
 {:MyStack 
- {:Resources {:ExResource [:Service.Module
+ {:Resources {:ExResource [:AWS.Service/Module
                            {:Name "Foo"}]}}}
 ;; {:MyStack 
 ;;  {:Resources {:ExResource [{:Type "AWS::Service::Module"
@@ -60,7 +68,7 @@ List of available reader literals:
 
 * `eid`: append environment info to an identifier string. Useful for naming resources per environment.
 
-* `aws/kvp`: convert key-value parameter map to aws parameter array.
+* `aws/params`: convert key-value parameter map to aws parameter array.
 
 * `aws/ref`: reference a resource by its [logical id](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/resources-section-structure.html).
 
