@@ -1,5 +1,4 @@
-(ns infra.aws.config 
-  "Configure AWS Cloudformation templates with EDN."
+(ns infra.aws.configure "Configure AWS Cloudformation templates."
   (:require [clojure.edn :as edn]
             [clojure.string :as string]))
 
@@ -15,11 +14,11 @@
   (reduce (fn [acc [_ tplate]]
             (if (map? (:TemplateBody tplate))
               (let [ks (reduce (fn [acc [_ v]]
-                              (if (= (:Type v) "AWS::SSM::Parameter")
-                                (conj acc (:Name (:Properties v)))
-                                acc))
-                            []
-                            (:Resources (:TemplateBody tplate)))]
+                                 (if (= (:Type v) "AWS::SSM::Parameter")
+                                   (conj acc (:Name (:Properties v)))
+                                   acc))
+                               []
+                               (:Resources (:TemplateBody tplate)))]
                 (into acc ks))
               acc))
           []
@@ -65,16 +64,17 @@
    For map, can declare AWS options directly but we provide a tuple shorthand for declararing 
    a resources, see `->aws-tplate-body` for details."
   [cfg]
-  (reduce-kv
-   (fn [m k v]
-     (let [template   (if (url-tplate? v)
-                        (let [[url clf-opts] v]
-                          (merge (make-aws-url-tplate k url)
-                                 clf-opts))
-                        (make-aws-opts-tplate k v))]
-       (assoc m k template)))
-   {}
-   cfg))
+  (let [clf (:cloudformation/stacks cfg)]
+    (reduce-kv
+     (fn [m k v]
+       (let [template   (if (url-tplate? v)
+                          (let [[url clf-opts] v]
+                            (merge (make-aws-url-tplate k url)
+                                   clf-opts))
+                          (make-aws-opts-tplate k v))]
+         (assoc m k template)))
+     {}
+     clf)))
 
 ;; # Config Reader Literals Factory
 
@@ -102,7 +102,7 @@
    Where appropriate we match the AWS function utilities provided for YAML/JSON templates."
   [env params]
   {'eid (fn [k] (eid k env))
-   'aws/kvp kv-params->aws-params
+   'aws/params kv-params->aws-params
    'aws/with-ssm-params with-aws-ssm-params
    ;; aws built-ins
    'aws/ref k->aws-resource-ref

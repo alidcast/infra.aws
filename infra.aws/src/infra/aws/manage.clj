@@ -1,8 +1,9 @@
-(ns infra.aws.request "Request AWS Cloudformation operations."
+(ns infra.aws.manage "Manage AWS Cloudformation Stacks."
   (:require [clojure.data.json :as json]
             [cognitect.aws.client.api :as aws]))
 
-;; # Cloudformation Operations
+;; # Cloudformation 
+;; Operations for managing cloudformation stacks.
 
 (def clf-client "Clouformation client."
   (aws/client {:api :cloudformation}))
@@ -29,7 +30,7 @@
   [opts]
   (req-clf :DescribeStack opts))
 
-;; TODO add guard for deleting production stacks
+;; todo add guard for deleting production stacks
 (defn delete-stack [name]
   (req-clf :DeleteStack {:StackName name
                          :RetainResources []}))
