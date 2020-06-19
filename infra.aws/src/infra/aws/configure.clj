@@ -32,10 +32,13 @@
   (vector? v))
 
 (defn- k->aws-resource-type
-  "Coverts key `k` to a AWS physical resource identifier type.
-   The key should be in ':<Service>.<Module>' format, i.e, :Service.Module -> AWS::Service::Module"
+  "Covert keyword `k` to a AWS physical resource identifier type.
+   e.g. :Aws.Service/Module-> AWS::Service::Module"
   [k]
-  (string/join "::" (cons "AWS" (string/split (name k) #"\."))))
+ (let [ns-str (namespace k)] 
+   (if ns-str
+     (string/join "::" (conj (string/split ns-str #"\.") (name k)))
+     (ex-info "AWS resource type must be in format :AWS.Service/Module." {:key key}))))
 
 (defn- make-aws-url-tplate "Makes AWS template from stack `name` and template `url`."
   [name url]
@@ -97,9 +100,6 @@
              :Properties {:Name (name k) :Type "String" :Value (k->aws-resource-ref k)}}))
    m
    m))
-
-[:SSM.Parameter
- {:Name "Foo", :Type "String", :Value {:Ref "Foo"}}]
 
 (defn create-readers 
   "Create edn reader literals using `env` keyword and `param` map.

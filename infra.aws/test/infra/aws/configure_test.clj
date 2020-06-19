@@ -38,6 +38,6 @@
                                                 :Properties {:Name "foo-bar"}}}}})
                  result)))
         (testing "tuple shorthand is expanded into aws option map"
-          (is (= (f {:Stack {:Resources {:Foo [:Service.Module
+          (is (= (f {:Stack {:Resources {:Foo [:AWS.Service/Module
                                                {:Name "foo-bar"}]}}})
                  result)))))))
