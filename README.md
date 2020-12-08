@@ -46,4 +46,4 @@ See respective projects README for usage.
 
 ## License
 
-MIT © [Alid Lorenzo](https://github.com/alidlo)
+Distributed under the [EPL v2.0](LICENSE)
