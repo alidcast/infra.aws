@@ -1,6 +1,11 @@
-# infra.aws
+# Infra Usage
 
 Tools for managing AWS cloudformation resources.
+
+Some considerations:
+* Matching the templating options and functions AWS already has, providing shorthands where useful.
+* Provide a way to manage different environments with a single configuration.
+* Provide utilities for setting up and inspecting Cloudformation stacks.
 
 ## Usage 
 
