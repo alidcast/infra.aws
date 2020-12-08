@@ -37,8 +37,7 @@ Example:
   (ir/delete-stack (get-stack :app-auth))
   ;; Get list of all auto-configured System Parameter keys.
   ;; You can later retrieve them using aws-api :ssm client.
-  (ic/get-ssm-param-keys cfg)
-)
+  (ic/get-ssm-param-keys cfg))
 ```
 
 ## Usage 

@@ -1,7 +1,14 @@
-{:paths ["infra.aws/src"]
- :deps {infra.aws/example {:local/root "./example"}}
+{:paths ["src"] 
+ :deps 
+ {com.cognitect/anomalies            {:mvn/version "0.1.12"}
+  com.cognitect.aws/api              {:mvn/version "0.8.445"}
+  com.cognitect.aws/endpoints        {:mvn/version "1.1.11.749"}
+  com.cognitect.aws/cloudformation   {:mvn/version "773.2.575.0"}} 
  :aliases
- {:test
-  {:extra-paths ["infra.aws/test"]
-   :main-opts   ["-m" "kaocha.runner"]
+ {:local
+  {:extra-deps
+   {infra.aws/example {:local/root "./example"}}}
+  :test
+  {:main-opts   ["-m" "kaocha.runner"]
+   :extra-paths ["test"]
    :extra-deps  {lambdaisland/kaocha {:mvn/version "0.0-554"}}}}}
